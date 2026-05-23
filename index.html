@@ -451,12 +451,13 @@ function updatePhaseIndicator() {
 
 // ── UI Handlers ───────────────────────────────────────────
 function updateParam(name, value) {
-  if (name === 'lateral') name = 'lateralProb';
-  value = name === 'lateralProb' ? parseInt(value) / 100 : parseInt(value);
+  let displayName = name;
+  if (name === 'lateralProb') { displayName = 'lateral'; value = parseInt(value) / 100; }
+  else { value = parseInt(value); }
   params[name] = value;
 
   let displayText = '';
-  switch (name) {
+  switch (displayName) {
     case 'depth': displayText = value + ' levels'; break;
     case 'ratio': displayText = value + ' children/node'; break;
     case 'lateral': displayText = value.toFixed(2) + ' — ' + (value < 0.05 ? 'Exact tree' : value < 0.25 ? 'Approx. tree' : value < 0.5 ? 'Tree + edges' : value < 0.75 ? 'Network w/ hierarchy' : 'Flat'); break;
