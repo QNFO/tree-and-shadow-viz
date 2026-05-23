@@ -451,7 +451,8 @@ function updatePhaseIndicator() {
 
 // ── UI Handlers ───────────────────────────────────────────
 function updateParam(name, value) {
-  value = name === 'lateral' ? parseInt(value) / 100 : parseInt(value);
+  if (name === 'lateral') name = 'lateralProb';
+  value = name === 'lateralProb' ? parseInt(value) / 100 : parseInt(value);
   params[name] = value;
 
   let displayText = '';
@@ -481,9 +482,10 @@ function applySeed() {
 }
 function resetParams() {
   params = { seed: 20348370, depth: 5, ratio: 2, lateralProb: 0.15, growthSpeed: 4 };
-  ['depth', 'ratio', 'lateral', 'speed'].forEach(name => {
-    let el = document.getElementById(name);
-    el.value = name === 'lateral' ? 15 : params[name];
+  ['depth', 'ratio', 'lateralProb', 'speed'].forEach(name => {
+    let elId = name === 'lateralProb' ? 'lateral' : name;
+    let el = document.getElementById(elId);
+    el.value = name === 'lateralProb' ? 15 : params[name];
     updateParam(name, el.value);
   });
   document.getElementById('seed-jump').value = '';
