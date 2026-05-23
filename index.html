@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Tree and Its Shadow — Interactive Phase Diagram</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #141413;
+  --light: #faf9f5;
+  --mid-gray: #b0aea5;
+  --light-gray: #e8e6dc;
+  --orange: #d97757;
+  --blue: #6a9bcc;
+  --green: #788c5d;
+  --bg: #0a0a14;
+  --surface: #12122a;
+  --text: #c8c8e0;
+  --tree-color: #4a6faf;
+  --lateral-color: #d97757;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--text);
+}
+.container { display: flex; min-height: 100vh; padding: 20px; gap: 20px; }
+.sidebar {
+  width: 320px; flex-shrink: 0;
+  background: rgba(18, 18, 42, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 24px; border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow-y: auto; overflow-x: hidden;
+  border: 1px solid rgba(74, 111, 175, 0.2);
+}
+.sidebar h1 {
+  font-family: 'Lora', serif; font-size: 22px;
+  font-weight: 500; color: var(--text);
+  margin-bottom: 4px;
+}
+.sidebar .subtitle {
+  color: var(--mid-gray); font-size: 13px;
+  margin-bottom: 28px; line-height: 1.4;
+}
+.control-section { margin-bottom: 28px; }
+.control-section h3 {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.control-section h3::before { content: '•'; color: var(--orange); font-weight: bold; }
+.seed-display {
+  width: 100%; background: rgba(0, 0, 0, 0.3);
+  padding: 12px; border-radius: 8px;
+  font-family: 'Courier New', monospace; font-size: 14px;
+  margin-bottom: 12px; border: 1px solid rgba(74, 111, 175, 0.3);
+  text-align: center; color: var(--text);
+}
+.seed-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.seed-controls button {
+  padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(74, 111, 175, 0.3);
+  cursor: pointer; font-size: 13px; font-family: 'Poppins', sans-serif;
+  background: rgba(74, 111, 175, 0.1); color: var(--text);
+  transition: all 0.2s;
+}
+.seed-controls button:hover { background: rgba(74, 111, 175, 0.25); border-color: var(--blue); }
+.jump-control { display: flex; gap: 8px; }
+.jump-control input {
+  flex: 1; padding: 8px 12px; border-radius: 6px;
+  border: 1px solid rgba(74, 111, 175, 0.3);
+  background: rgba(0, 0, 0, 0.3); color: var(--text);
+  font-family: 'Courier New', monospace; font-size: 13px;
+}
+.jump-control button {
+  padding: 8px 16px; border-radius: 6px;
+  border: 1px solid rgba(74, 111, 175, 0.3);
+  cursor: pointer; font-family: 'Poppins', sans-serif;
+  background: rgba(74, 111, 175, 0.2); color: var(--text);
+}
+.jump-control button:hover { background: rgba(74, 111, 175, 0.35); }
+.control-group { margin-bottom: 18px; }
+.control-group label {
+  display: block; font-size: 13px; font-weight: 500;
+  color: var(--text); margin-bottom: 6px;
+}
+.control-group input[type="range"] { width: 100%; accent-color: var(--orange); }
+.value-display { font-size: 12px; color: var(--mid-gray); margin-top: 2px; }
+.action-buttons { display: flex; flex-direction: column; gap: 8px; }
+.action-buttons button {
+  width: 100%; padding: 10px 16px; border-radius: 8px;
+  border: 1px solid rgba(74, 111, 175, 0.3);
+  cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 14px;
+  background: rgba(74, 111, 175, 0.15); color: var(--text);
+  transition: all 0.2s; font-weight: 500;
+}
+.action-buttons button:hover { background: rgba(74, 111, 175, 0.3); border-color: var(--blue); }
+.action-buttons .primary {
+  background: var(--orange); border-color: var(--orange);
+  color: white;
+}
+.action-buttons .primary:hover { background: #e0886a; }
+.main-content {
+  flex: 1; background: rgba(18, 18, 42, 0.5);
+  border-radius: 12px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(74, 111, 175, 0.15);
+  position: relative; min-height: 600px;
+}
+#canvas-container { width: 100%; height: 100%; }
+#canvas-container canvas { display: block; }
+.footer {
+  position: absolute; bottom: 12px; left: 16px;
+  font-size: 11px; color: rgba(176, 174, 165, 0.4);
+  font-family: 'Poppins', sans-serif;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar">
+    <h1>The Tree and Its Shadow</h1>
+    <p class="subtitle">Interactive phase diagram — from ultrametric tree to lateral network. DOI: 10.5281/zenodo.20348370</p>
+
+    <div class="control-section">
+      <h3>Seed</h3>
+      <div class="seed-display" id="seed-display">Seed: 20348370</div>
+      <div class="seed-controls">
+        <button onclick="prevSeed()">← Previous</button>
+        <button onclick="nextSeed()">Next →</button>
+        <button onclick="randomSeed()">🎲 Random</button>
+        <button onclick="resetParams()">↺ Reset</button>
+      </div>
+      <div class="jump-control">
+        <input type="number" id="seed-jump" placeholder="Jump to seed…" value="">
+        <button onclick="jumpToSeed()">Go</button>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <h3>Tree Parameters</h3>
+      <div class="control-group">
+        <label>Branching Depth</label>
+        <input type="range" id="depth" min="3" max="8" value="5" step="1" oninput="updateParam('depth', this.value)">
+        <div class="value-display" id="depth-value">5 levels</div>
+      </div>
+      <div class="control-group">
+        <label>Branching Ratio</label>
+        <input type="range" id="ratio" min="2" max="4" value="2" step="1" oninput="updateParam('ratio', this.value)">
+        <div class="value-display" id="ratio-value">2 children/node</div>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <h3>Resistance Parameters</h3>
+      <div class="control-group">
+        <label>Lateral Edge Probability</label>
+        <input type="range" id="lateral" min="0" max="80" value="15" step="1" oninput="updateParam('lateral', this.value)">
+        <div class="value-display" id="lateral-value">0.15 — Approx. tree</div>
+      </div>
+      <div class="control-group">
+        <label>Growth Speed</label>
+        <input type="range" id="speed" min="1" max="10" value="4" step="1" oninput="updateParam('speed', this.value)">
+        <div class="value-display" id="speed-value">Medium</div>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <h3>Phase Indicator</h3>
+      <div class="seed-display" id="phase-indicator" style="font-size:12px;">
+        Regime II — Approximate Tree
+      </div>
+    </div>
+
+    <div class="control-section">
+      <h3>Actions</h3>
+      <div class="action-buttons">
+        <button class="primary" onclick="regenerate()">🔄 Regenerate</button>
+        <button onclick="downloadPNG()">📥 Download PNG</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div id="canvas-container"></div>
+    <div class="footer">DOI: 10.5281/zenodo.20348370 — Rowan Brad Quni-Gudzinas (2026)</div>
+  </main>
+</div>
+
+<script>
+// ── Parameters ────────────────────────────────────────────
+let params = {
+  seed: 20348370,
+  depth: 5,
+  ratio: 2,
+  lateralProb: 0.15,
+  growthSpeed: 4,
+};
+
+// ── State ─────────────────────────────────────────────────
+let treeNodes = [];
+let treeEdges = [];
+let lateralEdges = [];
+let growthProgress = 0; // 0 to 1 for tree growth
+let lateralProgress = 0; // 0 to 1 for lateral edge growth
+let phaseStarted = false;
+
+// ── Colors ────────────────────────────────────────────────
+const TREE_ROOT_COLOR = [30, 40, 100];   // Deep indigo
+const TREE_TIP_COLOR = [100, 150, 220];   // Electric blue
+const LATERAL_COLOR = [217, 119, 87];     // Amber/orange
+const SHADOW_COLOR = [80, 50, 30];        // Dark earth tone
+const BG_COLOR = [10, 10, 20];
+
+// ── p5.js ─────────────────────────────────────────────────
+function setup() {
+  let container = document.getElementById('canvas-container');
+  let w = container.clientWidth || 800;
+  let h = container.clientHeight || 600;
+  let canvas = createCanvas(w, h);
+  canvas.parent('canvas-container');
+  randomSeed(params.seed);
+  noiseSeed(params.seed);
+  generateTree();
+  phaseStarted = true;
+}
+
+function draw() {
+  background(BG_COLOR);
+  let cx = width / 2;
+  let cy = height * 0.82;
+  let treeHeight = height * 0.6;
+  let treeWidth = width * 0.7;
+
+  // Compute animated progress
+  let speed = params.growthSpeed / 100;
+  growthProgress = min(growthProgress + speed, 1.0);
+  if (growthProgress > 0.85) {
+    lateralProgress = min(lateralProgress + speed * 0.6, 1.0);
+  }
+
+  // Draw shadow network (bottom)
+  push();
+  translate(cx, height * 0.92);
+  drawShadowNetwork(treeWidth * 0.5);
+  pop();
+
+  // Draw tree
+  push();
+  translate(cx, cy);
+  drawTreeRecursive(0, 0, 0, treeWidth, treeHeight, 0);
+  pop();
+
+  // Draw lateral edges on top
+  push();
+  translate(cx, cy);
+  drawLateralEdges(treeWidth, treeHeight);
+  pop();
+
+  // Phase indicator update
+  updatePhaseIndicator();
+}
+
+// ── Tree Generation ───────────────────────────────────────
+function generateTree() {
+  treeNodes = [];
+  treeEdges = [];
+  lateralEdges = [];
+  growthProgress = 0;
+  lateralProgress = 0;
+
+  // Build tree nodes
+  let root = { id: 'root', parent: null, depth: 0, x: 0, y: 0, children: [] };
+  treeNodes.push(root);
+  let queue = [root];
+  let nodeId = 1;
+
+  for (let d = 0; d < params.depth; d++) {
+    let nextQueue = [];
+    for (let parent of queue) {
+      for (let c = 0; c < params.ratio; c++) {
+        let child = {
+          id: 'n' + nodeId,
+          parent: parent.id,
+          depth: d + 1,
+          x: 0, y: 0,
+          children: [],
+        };
+        nodeId++;
+        parent.children.push(child.id);
+        treeNodes.push(child);
+        treeEdges.push({ from: parent.id, to: child.id, depth: d });
+        nextQueue.push(child);
+      }
+    }
+    queue = nextQueue;
+  }
+
+  // Assign positions
+  assignPositions(root, -0.45, 0.45, 0, params.depth);
+
+  // Generate lateral edges
+  let leaves = treeNodes.filter(n => n.children.length === 0);
+  let allPairs = [];
+  for (let i = 0; i < leaves.length; i++) {
+    for (let j = i + 1; j < leaves.length; j++) {
+      allPairs.push([leaves[i], leaves[j]]);
+    }
+  }
+  // Shuffle
+  for (let i = allPairs.length - 1; i > 0; i--) {
+    let j = floor(random(i + 1));
+    [allPairs[i], allPairs[j]] = [allPairs[j], allPairs[i]];
+  }
+  let lateralCount = floor(allPairs.length * params.lateralProb);
+  for (let i = 0; i < lateralCount; i++) {
+    let [a, b] = allPairs[i];
+    lateralEdges.push({ from: a.id, to: b.id });
+  }
+}
+
+function assignPositions(node, left, right, depth, maxDepth) {
+  node.x = (left + right) / 2;
+  node.y = depth / maxDepth;
+
+  if (node.children.length === 0) return;
+
+  let step = (right - left) / node.children.length;
+  for (let i = 0; i < node.children.length; i++) {
+    let childId = node.children[i];
+    let child = treeNodes.find(n => n.id === childId);
+    if (child) {
+      assignPositions(child, left + i * step, left + (i + 1) * step, depth + 1, maxDepth);
+    }
+  }
+}
+
+// ── Drawing ───────────────────────────────────────────────
+function drawTreeRecursive(x, y, nodeId, treeW, treeH, depth) {
+  // Only draw nodes up to current growth progress
+  let maxDepth = floor(growthProgress * params.depth);
+  if (depth > maxDepth) return;
+
+  // Draw edges first (under nodes)
+  let node = treeNodes.find(n => n.id === nodeId);
+  if (!node) return;
+
+  if (depth < maxDepth) {
+    for (let childId of node.children) {
+      let child = treeNodes.find(n => n.id === childId);
+      if (!child) continue;
+
+      let x1 = node.x * treeW;
+      let y1 = node.y * treeH;
+      let x2 = child.x * treeW;
+      let y2 = child.y * treeH;
+
+      // Interpolate branch color
+      let t = depth / params.depth;
+      let r = lerp(TREE_ROOT_COLOR[0], TREE_TIP_COLOR[0], t);
+      let g = lerp(TREE_ROOT_COLOR[1], TREE_TIP_COLOR[1], t);
+      let b = lerp(TREE_ROOT_COLOR[2], TREE_TIP_COLOR[2], t);
+
+      let weight = map(depth, 0, params.depth, 3, 0.8);
+      stroke(r, g, b, 200);
+      strokeWeight(weight);
+      noFill();
+      line(x1, -y1, x2, -y2);
+
+      drawTreeRecursive(x, y, childId, treeW, treeH, depth + 1);
+    }
+  }
+
+  // Draw node
+  noStroke();
+  let t = depth / params.depth;
+  let nr = lerp(TREE_ROOT_COLOR[0], TREE_TIP_COLOR[0], t);
+  let ng = lerp(TREE_ROOT_COLOR[1], TREE_TIP_COLOR[1], t);
+  let nb = lerp(TREE_ROOT_COLOR[2], TREE_TIP_COLOR[2], t);
+  let nodeSize = map(depth, 0, params.depth, 8, 3);
+  fill(nr, ng, nb, 220);
+  ellipse(node.x * treeW, -node.y * treeH, nodeSize, nodeSize);
+}
+
+function drawLateralEdges(treeW, treeH) {
+  let maxLaterals = floor(lateralProgress * lateralEdges.length);
+  for (let i = 0; i < Math.min(maxLaterals, lateralEdges.length); i++) {
+    let edge = lateralEdges[i];
+    let a = treeNodes.find(n => n.id === edge.from);
+    let b = treeNodes.find(n => n.id === edge.to);
+    if (!a || !b) continue;
+
+    let x1 = a.x * treeW;
+    let y1 = -a.y * treeH;
+    let x2 = b.x * treeW;
+    let y2 = -b.y * treeH;
+
+    // Curve the lateral edge for visual distinction
+    let midX = (x1 + x2) / 2;
+    let midY = (y1 + y2) / 2 - 15;
+    noFill();
+    stroke(LATERAL_COLOR[0], LATERAL_COLOR[1], LATERAL_COLOR[2], 120);
+    strokeWeight(1.2);
+    beginShape();
+    vertex(x1, y1);
+    quadraticVertex(midX, midY - 8, x2, y2);
+    endShape();
+  }
+}
+
+function drawShadowNetwork(scale) {
+  // Draw lateral edges as a projected network
+  let shadowEdges = lateralEdges.slice(0, floor(lateralProgress * lateralEdges.length));
+  for (let edge of shadowEdges) {
+    let a = treeNodes.find(n => n.id === edge.from);
+    let b = treeNodes.find(n => n.id === edge.to);
+    if (!a || !b) continue;
+
+    let x1 = a.x * scale;
+    let y1 = a.y * 30;
+    let x2 = b.x * scale;
+    let y2 = b.y * 30;
+
+    stroke(SHADOW_COLOR[0], SHADOW_COLOR[1], SHADOW_COLOR[2], 60);
+    strokeWeight(0.6);
+    line(x1, y1, x2, y2);
+
+    // Draw shadow node
+    noStroke();
+    fill(SHADOW_COLOR[0], SHADOW_COLOR[1], SHADOW_COLOR[2], 80);
+    ellipse(x1, y1, 2.5, 2.5);
+    ellipse(x2, y2, 2.5, 2.5);
+  }
+}
+
+function updatePhaseIndicator() {
+  let p = params.lateralProb;
+  let regime;
+  if (p < 0.05) regime = 'Regime I — Exact Tree';
+  else if (p < 0.25) regime = 'Regime II — Approximate Tree';
+  else if (p < 0.50) regime = 'Regime III — Tree + Lateral Edges';
+  else if (p < 0.75) regime = 'Regime IV — Network w/ Residual Hierarchy';
+  else regime = 'Regime V — Flat / Non-Hierarchical';
+  document.getElementById('phase-indicator').textContent = regime;
+}
+
+// ── UI Handlers ───────────────────────────────────────────
+function updateParam(name, value) {
+  value = name === 'lateral' ? parseInt(value) / 100 : parseInt(value);
+  params[name] = value;
+
+  let displayText = '';
+  switch (name) {
+    case 'depth': displayText = value + ' levels'; break;
+    case 'ratio': displayText = value + ' children/node'; break;
+    case 'lateral': displayText = value.toFixed(2) + ' — ' + (value < 0.05 ? 'Exact tree' : value < 0.25 ? 'Approx. tree' : value < 0.5 ? 'Tree + edges' : value < 0.75 ? 'Network w/ hierarchy' : 'Flat'); break;
+    case 'speed': displayText = value <= 2 ? 'Slow' : value <= 5 ? 'Medium' : 'Fast'; break;
+  }
+  document.getElementById(name + '-value').textContent = displayText;
+
+  generateTree();
+}
+
+function prevSeed() { params.seed = Math.max(1, params.seed - 1); applySeed(); }
+function nextSeed() { params.seed = params.seed + 1; applySeed(); }
+function randomSeed() { params.seed = Math.floor(Math.random() * 99999999) + 1; applySeed(); }
+function jumpToSeed() {
+  let val = parseInt(document.getElementById('seed-jump').value);
+  if (val && val > 0) { params.seed = val; applySeed(); }
+}
+function applySeed() {
+  randomSeed(params.seed);
+  noiseSeed(params.seed);
+  document.getElementById('seed-display').textContent = 'Seed: ' + params.seed;
+  generateTree();
+}
+function resetParams() {
+  params = { seed: 20348370, depth: 5, ratio: 2, lateralProb: 0.15, growthSpeed: 4 };
+  ['depth', 'ratio', 'lateral', 'speed'].forEach(name => {
+    let el = document.getElementById(name);
+    el.value = name === 'lateral' ? 15 : params[name];
+    updateParam(name, el.value);
+  });
+  document.getElementById('seed-jump').value = '';
+  applySeed();
+}
+function regenerate() { applySeed(); }
+function downloadPNG() { saveCanvas('tree-and-shadow-seed-' + params.seed, 'png'); }
+
+function windowResized() {
+  let container = document.getElementById('canvas-container');
+  let w = container.clientWidth || 800;
+  let h = container.clientHeight || 600;
+  resizeCanvas(w, h);
+}
+</script>
+</body>
+</html>
