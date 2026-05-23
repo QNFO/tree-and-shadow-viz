@@ -10,7 +10,7 @@
 body{background:#0a0a14;overflow:hidden;font-family:'Georgia',serif}
 canvas{display:block}
 
-/* Narrative panel - light card, top-right */
+/* Narrative panel */
 #story{position:fixed;top:24px;right:24px;width:300px;max-height:calc(100vh - 48px);
   background:rgba(250,249,245,0.97);border-radius:14px;padding:22px;z-index:10;
   box-shadow:0 8px 32px rgba(0,0,0,0.4);overflow-y:auto;
@@ -18,38 +18,43 @@ canvas{display:block}
 #story h2{font-size:18px;font-weight:400;margin-bottom:4px;color:#141413}
 #story .byline{font-size:11px;color:#b0aea5;margin-bottom:16px}
 #story .desc{font-size:12px;color:#555;margin-bottom:20px;line-height:1.7}
-#story h3{font-size:14px;font-weight:600;margin:20px 0 12px;color:#141413}
-#story h3:before{content:'— ';color:#d97757}
+#story h3{font-size:14px;font-weight:600;margin:18px 0 12px;color:#141413}
 
 /* Preset buttons */
 .preset{display:block;width:100%;padding:10px 14px;margin-bottom:6px;border:1px solid #e8e6dc;
   border-radius:8px;cursor:pointer;text-align:left;font-family:inherit;font-size:12px;
-  background:#faf9f5;transition:all 0.2s;color:#141413;line-height:1.5}
+  background:#faf9f5;transition:all 0.2s;color:#141413;line-height:1.4}
 .preset:hover{background:#f0ede4;border-color:#d97757}
 .preset.active{background:#d97757;color:#fff;border-color:#d97757}
 .preset .reg{font-weight:600;font-size:13px}
 .preset .ex{font-size:10px;color:#b0aea5;display:block;margin-top:2px}
 .preset.active .ex{color:rgba(255,255,255,0.7)}
 
-/* Phase label - floating, bottom-right */
+/* Phase label */
 #phase{position:fixed;bottom:28px;right:28px;z-index:10;
-  font-size:13px;color:#b0aea5;font-family:'Georgia',serif;
-  background:rgba(10,10,20,0.85);padding:8px 14px;border-radius:20px;
+  font-size:14px;color:#b0aea5;font-family:'Georgia',serif;
+  background:rgba(10,10,20,0.85);padding:10px 16px;border-radius:20px;
   border:1px solid rgba(255,255,255,0.1);transition:all 0.4s}
 
-/* DOI badge */
+/* DOI */
 #doi{position:fixed;bottom:28px;left:28px;z-index:10;
-  font-size:10px;color:rgba(176,174,165,0.4);font-family:'Georgia',serif}
+  font-size:10px;color:rgba(176,174,165,0.35);font-family:'Georgia',serif}
 #doi a{color:inherit;text-decoration:none}
 
-/* Minimap indicator */
+/* Minimap */
 #minimap{position:fixed;bottom:60px;right:28px;z-index:9;width:80px;height:14px;
   background:rgba(10,10,20,0.6);border-radius:7px;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
 #minimap-fill{height:100%;background:linear-gradient(90deg,#4a6faf,#6a9bcc,#d97757,#e0886a,#b0aea5);
   border-radius:7px;transition:width 0.6s}
 
+/* Edit controls */
+#tweak{position:fixed;bottom:90px;right:28px;z-index:10;display:flex;gap:6px;
+  background:rgba(10,10,20,0.5);border-radius:20px;padding:4px;border:1px solid rgba(255,255,255,0.04)}
+#tweak input[type=range]{width:50px;accent-color:#d97757}
+#tweak span{font-size:8px;color:rgba(176,174,165,0.4);padding:2px 4px;line-height:1}
+
 @media(max-width:700px){#story{top:8px;right:8px;width:260px;padding:14px;font-size:11px}
-  #story h2{font-size:15px}#doi{display:none}}
+  #story h2{font-size:15px}#doi{display:none}#tweak{display:none}}
 </style>
 </head>
 <body>
@@ -57,36 +62,34 @@ canvas{display:block}
   <h2>The Tree and Its Shadow</h2>
   <div class="byline">Rowan Brad Quni-Gudzinas · DOI: 10.5281/zenodo.20348370</div>
   <div class="desc">
-    The ultrametric tree — where every triangle is isosceles — appears wherever recursive distinction operates in isolation. But isolation is rare. <b style="color:#4a6faf">Blue</b> branches are the tree. <b style="color:#d97757">Amber</b> curves break it. Click the chapters below to tour the five regimes from the paper.
+    The ultrametric tree — every triangle is isosceles — appears wherever recursive distinction operates in isolation. <b style="color:#4a6faf">Blue branches</b> = the tree. <b style="color:#d97757">Amber curves</b> = lateral connections breaking it. Click the presets below to tour each regime from the paper. Each preset shows what domain from the paper you are looking at.
   </div>
 
-  <h3>Regime Presets</h3>
+  <h3>Paper Regimes (Click to Load)</h3>
   <button class="preset active" data-preset="I" onclick="loadPreset('I',this)">
     <span class="reg">I · Exact Tree</span>
-    <span class="ex">p-adic numbers · Bruhat-Tits tree · SK spin glass (d=∞) · Every triangle must be isosceles</span>
+    <span class="ex">p-adic numbers, Bruhat-Tits tree, SK spin glass (d=∞), perturbative RG</span>
   </button>
   <button class="preset" data-preset="II" onclick="loadPreset('II',this)">
     <span class="reg">II · Approximate Tree</span>
-    <span class="ex">Metazoan phylogeny · Swadesh vocabulary · e⁺e⁻ jets at LEP · Tree holds, clock drifts slightly</span>
+    <span class="ex">Metazoan phylogeny, Swadesh vocabulary, e⁺e⁻ jets at LEP</span>
   </button>
   <button class="preset" data-preset="III" onclick="loadPreset('III',this)">
     <span class="reg">III · Tree + Lateral Edges</span>
-    <span class="ex">Bacteria swapping genes · Languages borrowing words · LHC jets · Backbone remains, amber threads appear</span>
+    <span class="ex">Bacteria swapping genes, languages borrowing words, LHC jets</span>
   </button>
   <button class="preset" data-preset="IV" onclick="loadPreset('IV',this)">
     <span class="reg">IV · Network Dominance</span>
-    <span class="ex">Social networks · Semantic memory (fire→hot→danger) · Spin glasses at d=3 · Hierarchy barely visible</span>
+    <span class="ex">Social networks, semantic memory (fire → hot → danger), spin glasses at d=3</span>
   </button>
   <button class="preset" data-preset="V" onclick="loadPreset('V',this)">
     <span class="reg">V · Flat / Non-Hierarchical</span>
-    <span class="ex">Peer-to-peer · Distributed ledgers · Thermal systems · Random graphs · Organization without trees</span>
+    <span class="ex">Peer-to-peer, distributed ledgers, thermal systems, random graphs</span>
   </button>
 
-  <h3>Fine Controls</h3>
-  <div style="font-size:11px;color:#b0aea5;margin-bottom:8px">
-    <label>Depth: <input type="range" min="3" max="8" value="6" oninput="tweak('depth',this.value)" style="width:100%;accent-color:#d97757"></label>
-    <label>Lateral: <input type="range" min="0" max="100" value="0" oninput="tweak('lateralProb',this.value/100)" style="width:100%;accent-color:#d97757"></label>
-    <label>Speed: <input type="range" min="1" max="10" value="5" oninput="tweak('speed',this.value)" style="width:100%;accent-color:#d97757"></label>
+  <h3>Controls</h3>
+  <div style="font-size:11px;color:#b0aea5;margin-bottom:4px">
+    <button onclick="document.getElementById('tweak').style.display=document.getElementById('tweak').style.display==='flex'?'none':'flex'" style="background:none;border:1px solid #e8e6dc;border-radius:20px;padding:4px 14px;cursor:pointer;font-family:inherit;font-size:11px;color:#b0aea5">Edit ⋮</button>
     <span style="float:right;cursor:pointer;color:#d97757" onclick="randomize()">↻ Random seed</span>
   </div>
 </div>
@@ -94,134 +97,160 @@ canvas{display:block}
 <div id="phase">Regime I · Exact Tree · Every triangle is isosceles</div>
 <div id="doi"><a href="https://doi.org/10.5281/zenodo.20348370">10.5281/zenodo.20348370</a></div>
 <div id="minimap"><div id="minimap-fill" style="width:5%"></div></div>
+<div id="tweak" style="display:none">
+  <span>depth</span><input type="range" min="3" max="8" value="6" oninput="tweak('depth',this.value)">
+  <span>lateral</span><input type="range" min="0" max="100" value="0" oninput="tweak('lateralProb',this.value/100)">
+  <span>speed</span><input type="range" min="1" max="10" value="5" oninput="tweak('speed',this.value)">
+</div>
 
 <script>
-// ── Presets ──────────────────────────────────
+// ── FRACTAL TREE WITH ANGULAR SPREAD ────────────────────
+// Branches spread outward at angles — no more vertical tangles.
+
 const PRESETS = {
-  I:   { depth:6, ratio:2, lateralProb:0.00, label:'Regime I · Exact Tree · Every triangle is isosceles', map:5 },
-  II:  { depth:5, ratio:2, lateralProb:0.10, label:'Regime II · Approximate Tree · Clock-like phylogeny, core vocabulary', map:20 },
-  III: { depth:5, ratio:2, lateralProb:0.35, label:'Regime III · Tree + Lateral Edges · Bacteria swapping genes, borrowed words', map:40 },
-  IV:  { depth:5, ratio:2, lateralProb:0.60, label:'Regime IV · Network Dominance · Friends of friends, spreading activation', map:70 },
-  V:   { depth:4, ratio:3, lateralProb:0.85, label:'Regime V · Flat / Non-Hierarchical · Peer-to-peer, random graphs', map:95 },
+  I:   { depth:7, ratio:2, angle:70, lateralProb:0.00, label:'Regime I · Exact Tree · Every triangle is isosceles', map:5 },
+  II:  { depth:6, ratio:2, angle:65, lateralProb:0.10, label:'Regime II · Approximate Tree · Metazoan phylogeny, core vocabulary', map:20 },
+  III: { depth:6, ratio:2, angle:60, lateralProb:0.35, label:'Regime III · Tree + Lateral Edges · Bacteria swapping genes, borrowed words', map:40 },
+  IV:  { depth:5, ratio:3, angle:55, lateralProb:0.60, label:'Regime IV · Network Dominance · Social networks, spreading activation', map:70 },
+  V:   { depth:4, ratio:3, angle:50, lateralProb:0.85, label:'Regime V · Flat / Non-Hierarchical · Peer-to-peer, random graphs', map:95 },
 };
 
-// ── State ────────────────────────────────────
-let params = { seed:20348370, depth:6, ratio:2, lateralProb:0, growthSpeed:5 };
+let params = { seed:20348370, depth:7, ratio:2, angle:70, lateralProb:0, growthSpeed:5 };
 let treeNodes=[], treeEdges=[], lateralEdges=[];
 let growthProgress=0, lateralProgress=0, currentPreset='I';
+let zoomLevel=0.35; // deep zoom out — full tree visible
 
-// ── Colors ───────────────────────────────────
-const TREE_ROOT=[30,40,100], TREE_TIP=[100,150,220];
-const LATERAL=[217,119,87], SHADOW=[80,50,30];
+function setup(){
+  createCanvas(windowWidth, windowHeight);
+  randomSeed(params.seed); noiseSeed(params.seed);
+  resetAll();
+}
 
-// ── p5 ───────────────────────────────────────
-function setup(){createCanvas(windowWidth,windowHeight);randomSeed(params.seed);noiseSeed(params.seed);resetAll()}
 function draw(){
   background(10,10,20);
-  let cx=width/2, cy=height*0.82, treeH=height*0.6, treeW=width*0.8;
+  let cx=width/2, cy=height*0.78;
+  let treeLen = height * 0.55 * zoomLevel;
 
-  let spd=params.growthSpeed/100;
-  growthProgress=min(growthProgress+spd,1);
-  if(growthProgress>=0.4)lateralProgress=min(lateralProgress+spd*0.5,1);
+  let spd = params.growthSpeed/100;
+  growthProgress = min(growthProgress+spd, 1.0);
+  if(growthProgress >= 0.3) lateralProgress = min(lateralProgress + spd*0.4, 1.0);
 
-  // Shadow
-  push();translate(cx,height*0.92);
-  let ls=lateralEdges.slice(0,floor(lateralProgress*lateralEdges.length));
-  for(let e of ls){let a=tn(e.from),b=tn(e.to);if(!a||!b)continue;
-    stroke(80,50,30,50);strokeWeight(0.5);line(a.x*treeW*0.5,a.y*30,b.x*treeW*0.5,b.y*30);}
-  pop();
+  push(); translate(cx, cy);
 
-  // Tree
-  push();translate(cx,cy);
-  let md=floor(growthProgress*params.depth);
-  drawTree(0,0,0,treeW,treeH,0,md);
-  pop();
-
-  // Lateral
-  push();translate(cx,cy);
-  for(let i=0;i<min(floor(lateralProgress*lateralEdges.length),lateralEdges.length);i++){
-    let e=lateralEdges[i],a=tn(e.from),b=tn(e.to);if(!a||!b)continue;
-    let mx=(a.x+b.x)/2*treeW,my=(-a.y-b.y)/2*treeH-15;
-    stroke(217,119,87,130);strokeWeight(1.2);noFill();
-    beginShape();vertex(a.x*treeW,-a.y*treeH);quadraticVertex(mx,my-8,b.x*treeW,-b.y*treeH);endShape();
+  // Shadow network
+  push(); translate(0, height*0.15);
+  let ls = lateralEdges.slice(0, floor(lateralProgress*lateralEdges.length));
+  for(let e of ls){
+    let a=tn(e.from), b=tn(e.to); if(!a||!b) continue;
+    stroke(80,50,30,40); strokeWeight(0.5);
+    line(a.x, a.y, b.x, b.y);
   }
+  pop();
+
+  // Fractal tree
+  let md = floor(growthProgress * params.depth);
+  drawFractalTree(0, -treeLen*0.1, 0, params.depth, md, treeLen, -PI/2);
+
+  // Lateral edges on top
+  for(let i=0; i<min(floor(lateralProgress*lateralEdges.length), lateralEdges.length); i++){
+    let e=lateralEdges[i], a=tn(e.from), b=tn(e.to); if(!a||!b) continue;
+    let mx=(a.x+b.x)/2, my=(a.y+b.y)/2 - abs(a.x-b.x)*0.3;
+    stroke(217,119,87,140); strokeWeight(1.2); noFill();
+    beginShape(); vertex(a.x,a.y); quadraticVertex(mx,my,b.x,b.y); endShape();
+    
+    // Highlight lateral nodes
+    push(); noStroke(); fill(217,119,87,180); ellipse(a.x,a.y,3,3); ellipse(b.x,b.y,3,3); pop();
+  }
+
   pop();
 }
 
-function drawTree(x,y,nid,tw,th,depth,md){
-  let n=tn(nid);if(!n||depth>md)return;
-  if(depth<md)for(let c of n.children){
-    let ch=tn(c);if(!ch)continue;
-    let t=depth/params.depth;
-    stroke(lerp(TREE_ROOT[0],TREE_TIP[0],t),lerp(TREE_ROOT[1],TREE_TIP[1],t),lerp(TREE_ROOT[2],TREE_TIP[2],t),200);
-    strokeWeight(map(depth,0,params.depth,3,0.8));
-    line(n.x*tw,-n.y*th,ch.x*tw,-ch.y*th);
-    drawTree(x,y,c,tw,th,depth+1,md);
-  }
-  let t=depth/params.depth;
-  noStroke();fill(lerp(TREE_ROOT[0],TREE_TIP[0],t),lerp(TREE_ROOT[1],TREE_TIP[1],t),lerp(TREE_ROOT[2],TREE_TIP[2],t),220);
-  ellipse(n.x*tw,-n.y*th,map(depth,0,params.depth,8,3));
-}
+function drawFractalTree(sx, sy, curDepth, maxDepth, renderDepth, baseLen, angle){
+  let n = tn('d'+curDepth);
+  if(!n || curDepth > renderDepth) return;
 
-function tn(id){return treeNodes.find(n=>n.id===id)}
+  // Compute branch endpoint
+  let len = baseLen * (1 - curDepth/maxDepth*0.6); // shorter at tips
+  let ex = sx + len * cos(angle);
+  let ey = sy + len * sin(angle);
 
-function windowResized(){resizeCanvas(windowWidth,windowHeight)}
+  // Store position for lateral edges
+  n.x = ex; n.y = ey;
 
-// ── Build ────────────────────────────────────
-function resetAll(){
-  treeNodes=[];treeEdges=[];lateralEdges=[];
-  growthProgress=0;lateralProgress=0;
-  randomSeed(params.seed);noiseSeed(params.seed);
+  // Draw branch
+  let t = curDepth/maxDepth;
+  let r = lerp(30, 120, t), gColor = lerp(40, 160, t), bColor = lerp(100, 230, t);
+  let weight = map(curDepth, 0, maxDepth, 4, 1.2);
+  stroke(r, gColor, bColor, 200); strokeWeight(weight); noFill();
+  line(sx, sy, ex, ey);
 
-  let root={id:'root',parent:null,depth:0,x:0,y:0,children:[]};
-  treeNodes.push(root);
-  let queue=[root],nid=1;
+  // Node
+  noStroke(); fill(r, gColor, bColor, 220);
+  let nSize = map(curDepth, 0, maxDepth, 7, 2.5);
+  ellipse(ex, ey, nSize);
 
-  for(let d=0;d<params.depth;d++){
-    let nq=[];
-    for(let p of queue){
-      for(let c=0;c<params.ratio;c++){
-        let ch={id:'n'+nid,parent:p.id,depth:d+1,x:0,y:0,children:[]};
-        nid++;p.children.push(ch.id);treeNodes.push(ch);treeEdges.push({from:p.id,to:ch.id,depth:d});nq.push(ch);
-      }
+  // Children — spread across arc
+  if(curDepth < renderDepth && curDepth < maxDepth){
+    let nChildren = curDepth===0 ? params.ratio : min(params.ratio, (renderDepth-curDepth));
+    let arcSpan = radians(params.angle);
+    let startAngle = angle - arcSpan/2 + arcSpan/(nChildren+1);
+    let angleStep = arcSpan / (nChildren+1);
+
+    for(let c=0; c<nChildren; c++){
+      let childAngle = startAngle + c*angleStep;
+      let childId = 'd'+(curDepth+1);
+      if(!treeNodes.find(nn=>nn.id===childId)) treeNodes.push({id:childId});
+      drawFractalTree(ex, ey, curDepth+1, maxDepth, renderDepth, len, childAngle);
     }
-    queue=nq;
+  }
+}
+
+function tn(id){ return treeNodes.find(n=>n.id===id) }
+
+function resetAll(){
+  treeNodes=[{id:'root',x:0,y:-windowHeight*0.15}]; treeEdges=[]; lateralEdges=[];
+  growthProgress=0; lateralProgress=0;
+  randomSeed(params.seed); noiseSeed(params.seed);
+
+  // Build tree nodes
+  for(let d=0; d<=params.depth; d++){
+    for(let i=0; i<Math.pow(params.ratio, min(d,3)); i++){
+      treeNodes.push({id:'d'+d+'_'+i, depth:d});
+    }
   }
 
-  assignPos(root,-0.45*params.depth/5,0.45*params.depth/5,0,params.depth);
-
-  let leaves=treeNodes.filter(n=>n.children.length===0);
-  let pairs=[];for(let i=0;i<leaves.length;i++)for(let j=i+1;j<leaves.length;j++)pairs.push([leaves[i],leaves[j]]);
-  for(let i=pairs.length-1;i>0;i--){let j=floor(random(i+1));[pairs[i],pairs[j]]=[pairs[j],pairs[i]]}
-  for(let i=0;i<floor(pairs.length*params.lateralProb);i++)lateralEdges.push({from:pairs[i][0].id,to:pairs[i][1].id});
+  // Generate lateral edges between leaf-like nodes
+  let leafNodes = treeNodes.filter(n => n.depth >= params.depth-1);
+  let pairs=[];
+  for(let i=0; i<leafNodes.length; i++)
+    for(let j=i+1; j<leafNodes.length; j++)
+      pairs.push([leafNodes[i], leafNodes[j]]);
+  for(let i=pairs.length-1; i>0; i--){ let j=floor(random(i+1)); [pairs[i],pairs[j]]=[pairs[j],pairs[i]]; }
+  for(let i=0; i<floor(pairs.length*params.lateralProb); i++)
+    lateralEdges.push({from:pairs[i][0].id, to:pairs[i][1].id});
 }
 
-function assignPos(n,l,r,depth,md){
-  n.x=(l+r)/2;n.y=depth/md;if(n.children.length===0)return;
-  let cw=(r-l)/n.children.length;
-  for(let i=0;i<n.children.length;i++){let ch=tn(n.children[i]);if(ch)assignPos(ch,l+i*cw,l+(i+1)*cw,depth+1,md)}
-}
-
-// ── Interactive ──────────────────────────────
-function loadPreset(p,btn){
-  currentPreset=p;let pre=PRESETS[p];
-  params.depth=pre.depth;params.ratio=pre.ratio;params.lateralProb=pre.lateralProb;
+function loadPreset(p, btn){
+  currentPreset=p; let pre=PRESETS[p];
+  params.depth=pre.depth; params.ratio=pre.ratio; params.angle=pre.angle; params.lateralProb=pre.lateralProb;
   document.getElementById('phase').textContent=pre.label;
   document.getElementById('minimap-fill').style.width=pre.map+'%';
   document.querySelectorAll('.preset').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   resetAll();
 }
-function tweak(name,val){
+
+function tweak(name, val){
   params[name]=name==='speed'?parseInt(val):parseFloat(val);
-  currentPreset=null;document.querySelectorAll('.preset').forEach(b=>b.classList.remove('active'));
-  let pct=params.lateralProb;
-  let label=pct<0.05?'Regime I · Exact':pct<0.25?'Regime II · Approx':pct<0.50?'Regime III · +Lateral':pct<0.75?'Regime IV · Network':'Regime V · Flat';
-  document.getElementById('phase').textContent=label+' · p='+pct.toFixed(2);
-  document.getElementById('minimap-fill').style.width=(pct*100+5)+'%';
+  currentPreset=null; document.querySelectorAll('.preset').forEach(b=>b.classList.remove('active'));
+  let p=params.lateralProb;
+  document.getElementById('phase').textContent=(p<0.05?'I':p<0.25?'II':p<0.50?'III':p<0.75?'IV':'V')+' · p='+p.toFixed(2);
+  document.getElementById('minimap-fill').style.width=(p*100+5)+'%';
   resetAll();
 }
-function randomize(){params.seed=floor(random(1,99999999));resetAll()}
+
+function randomize(){ params.seed=floor(random(1,99999999)); resetAll() }
+function windowResized(){ resizeCanvas(windowWidth, windowHeight) }
 </script>
 </body>
 </html>
