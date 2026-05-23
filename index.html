@@ -143,7 +143,14 @@ body {
     </div>
 
     <div class="control-section">
-      <h3>Tree Parameters</h3>
+      <h3>How to Use</h3>
+      <div style="font-size:12px;color:#b0aea5;line-height:1.7;">
+        <p style="margin-bottom:10px"><b style="color:#6a9bcc">Blue branches</b> = the tree (hierarchical order). <b style="color:#d97757">Amber curves</b> = lateral connections breaking the tree. <b style="color:#605040">Dark dots below</b> = the tree's "shadow" — the network that actually grows.</p>
+        <p style="margin-bottom:10px">▶ <b>Watch</b> the tree grow first, then lateral connections appear — a live phase transition.</p>
+        <p style="margin-bottom:10px">▶ <b>Slide</b> Lateral Edge Probability to see all five regimes from the paper.</p>
+        <p>▶ <b>Change</b> the seed to explore different morphologies.</p>
+      </div>
+    </div>
       <div class="control-group">
         <label>Branching Depth</label>
         <input type="range" id="depth" min="3" max="8" value="5" step="1" oninput="updateParam('depth', this.value)">
@@ -240,8 +247,8 @@ function draw() {
   // Compute animated progress
   let speed = params.growthSpeed / 100;
   growthProgress = min(growthProgress + speed, 1.0);
-  if (growthProgress > 0.85) {
-    lateralProgress = min(lateralProgress + speed * 0.6, 1.0);
+  if (growthProgress >= 0.5) {
+    lateralProgress = min(lateralProgress + speed * 0.5, 1.0);
   }
 
   // Draw shadow network (bottom)
@@ -302,7 +309,7 @@ function generateTree() {
   }
 
   // Assign positions
-  assignPositions(root, -0.45, 0.45, 0, params.depth);
+  assignPositions(root, -0.45 * params.depth / 5, 0.45 * params.depth / 5, 0, params.depth);
 
   // Generate lateral edges
   let leaves = treeNodes.filter(n => n.children.length === 0);
@@ -330,14 +337,22 @@ function assignPositions(node, left, right, depth, maxDepth) {
 
   if (node.children.length === 0) return;
 
-  let step = (right - left) / node.children.length;
+  let span = right - left;
+  let childWidth = span / node.children.length;
   for (let i = 0; i < node.children.length; i++) {
     let childId = node.children[i];
     let child = treeNodes.find(n => n.id === childId);
     if (child) {
-      assignPositions(child, left + i * step, left + (i + 1) * step, depth + 1, maxDepth);
+      assignPositions(child, left + i * childWidth, left + (i + 1) * childWidth, depth + 1, maxDepth);
     }
   }
+}
+
+function getLeafSpan() {
+  let leaves = treeNodes.filter(n => n.children.length === 0);
+  if (leaves.length === 0) return 0.9;
+  let xs = leaves.map(n => n.x);
+  return Math.max(0.9, Math.max(...xs) - Math.min(...xs));
 }
 
 // ── Drawing ───────────────────────────────────────────────
