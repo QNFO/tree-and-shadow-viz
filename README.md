@@ -41,3 +41,7 @@ Rowan Brad Quni-Gudzinas (2026). *The Tree and Its Shadow: A Unified Phase Diagr
 ## License
 
 CC-BY-4.0
+
+---
+
+*Part of the [QWAV research program](https://qnfo.github.io/QWAV/) -- Ultrametric Quantum Computing & AI.*
